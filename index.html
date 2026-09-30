@@ -321,8 +321,23 @@ async function copyText(t){
 }
 function saveBlob(blob, name){ const u = URL.createObjectURL(blob), a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 1500); }
 function flash(btn, txt){ const old = btn.innerHTML; btn.classList.add('done'); btn.innerHTML = txt; setTimeout(() => { btn.classList.remove('done'); btn.innerHTML = old; }, 1600); }
-let NICK = ''; try { NICK = localStorage.getItem('cherry_nick') || ''; } catch(e){}
+let NICK = '';
 
+try {
+  NICK = localStorage.getItem('cherry_nick') || '';
+} catch (e) {}
+
+function setNick(value) {
+  NICK = value.trim();
+
+  try {
+    localStorage.setItem('cherry_nick', NICK);
+  } catch (e) {}
+}
+
+function getNick() {
+  return NICK;
+}
 /* ---- страницы ---- */
 const head = (title, desc, back) => `<div class="pagehead"><a class="back" href="${back}">${backIc}Назад</a><h2>${title}</h2>${desc ? `<p>${desc}</p>` : ''}</div>`;
 const fmt = s => esc(s).replace(/\{\{(.+?)\}\}/g, '<b class="pen">$1</b>');
@@ -348,12 +363,17 @@ const views = {
       </div></div>`;
   }
 };
-function fill(t){ return NICK ? t.text.replace(/\[Nick_Name\]/g, NICK) : t.text; }
+function fill(t) {
+  return t.text.replace(/\[Nick_Name\]/g, NICK || '[Nick_Name]');
+}
 function bindTemplate(id){
   const t = TEMPLATES.find(x => x.id === id); if (!t) return;
   const box = $('#tpl'), draw = () => { box.innerHTML = esc(fill(t)).replace(/\[[^\]]+\]/g, m => `<mark>${m}</mark>`); };
   draw(); drawCover($('#shot'), t);
-  $('#nick').oninput = e => { NICK = e.target.value.trim(); try { localStorage.setItem('cherry_nick', NICK); } catch(_){} draw(); };
+  $('#nick').oninput = e => {
+  setNick(e.target.value);
+  draw();
+};
   $('#cp').onclick = async e => { const b = e.currentTarget; flash(b, (await copyText(fill(t))) ? 'Скопировано' : 'Не удалось скопировать'); };
   $('#dlImg').onclick = e => { const b = e.currentTarget; try { $('#shot').toBlob(bl => { if (bl) { saveBlob(bl, `cherry-${t.id}.png`); flash(b, 'Скачано'); } }, 'image/png'); } catch (err) { if (t.img) { const a = document.createElement('a'); a.href = t.img; a.download = `cherry-${t.id}`; a.click(); flash(b, 'Скачано'); } } };
 }
