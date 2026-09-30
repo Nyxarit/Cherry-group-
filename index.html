@@ -311,7 +311,7 @@ const TEMPLATES = [
  T('news','Шаблон для новостей','Новости об игроках и сервере','НОВОСТИ','Сегодня у нас важные новости: [заголовок новости]\n\n[текст новости в стиле газетной заметки]\n\nПишите своё мнение в комментариях!'),
  T('poll','Шаблон для опроса','Опрос для игроков','ОПРОС','Сегодня я подготовил опрос: [вопрос опроса]\n\nГолосуйте и пишите своё мнение в комментариях!'),
  T('memes','Шаблон для мемов','Мем дня','МЕМЫ','Мем дня для игроков сервера:\n\n[прикрепи мем к посту]\n\nСмешно? Ставьте лайк!'),
- T('game','Шаблон для игры','Игровые рубрики','game','Сегодня я подготовил интервью с [Nick_Name и должность]', ['Факт об игре: [впиши факт]','Факт о сервере: [впиши факт]','Факт о рубрике: [впиши факт]']),
+ T('game','Шаблон для игры','Игровые рубрики','game','Сегодня я подготовил интервью с [Interview_Name и должность]', ['Факт об игре: [впиши факт]','Факт о сервере: [впиши факт]','Факт о рубрике: [впиши факт]']),
  T('weekdays','Шаблон для будней','Пост на каждый день','БУДНИ','Как проходят ваши будни на сервере?\n\n[тема поста]\n\n[текст поста]'),
  T('easter','Шаблон для пасхалки','Секреты и находки в игре','ПАСХАЛКА','Знаете ли вы про пасхалку: [название]?\n\n[описание и где её найти]'),
  T('facts','Шаблон для фактов','Интересные факты','ФАКТЫ','Сегодня я подготовил интересные факты:\n\n1. [факт]\n2. [факт]\n3. [факт]'),
@@ -413,14 +413,31 @@ const views = {
         <div class="btns"><button class="btn" id="dlImg">${imgIc}Скачать фото</button></div></div>
       <div class="panel">
         <div class="nick"><label for="nick">Твой ник (подставится вместо [Nick_Name])</label><input id="nick" placeholder="Например, Ivan_Cherry" value="${esc(NICK)}" autocomplete="off"></div>
+        ${t.id === 'game' ? `
+<div class="nick">
+  <label for="interviewName">Ник игрока для интервью</label>
+  <input id="interviewName" placeholder="Например, Arman" autocomplete="off">
+</div>
+` : ''}
         <div class="tpl" id="tpl"></div>
         ${t.facts ? `<div class="facts"><h4>Факты для поста</h4><ul>${t.facts.map(f => `<li>${esc(f)}</li>`).join('')}</ul></div>` : ''}
         <div class="btns"><button class="btn main" id="cp">${copyIc}Скопировать текст</button></div>
       </div></div>`;
   }
 };
-function fill(t) {
-  return t.text.replace(/\[Nick_Name\]/g, NICK || '[Nick_Name]');
+function fill(t){
+  let text = t.text;
+
+  // Твой ник
+  text = text.replace(/\[Nick_Name\]/g, NICK || '[Nick_Name]');
+
+  // Ник игрока из интервью
+  if (t.id === 'game') {
+    const interviewName = $('#interviewName')?.value.trim() || '';
+    text = text.replace(/\[Interview_Name\]/g, interviewName || '[Ник игрока]');
+  }
+
+  return text;
 }
 function bindTemplate(id){
   const t = TEMPLATES.find(x => x.id === id); if (!t) return;
@@ -430,6 +447,11 @@ function bindTemplate(id){
   setNick(e.target.value);
   draw();
 };
+  if ($('#interviewName')) {
+  $('#interviewName').oninput = () => {
+    draw();
+  };
+}
   $('#cp').onclick = async e => { const b = e.currentTarget; flash(b, (await copyText(fill(t))) ? 'Скопировано' : 'Не удалось скопировать'); };
   $('#dlImg').onclick = e => { const b = e.currentTarget; try { $('#shot').toBlob(bl => { if (bl) { saveBlob(bl, `cherry-${t.id}.png`); flash(b, 'Скачано'); } }, 'image/png'); } catch (err) { if (t.img) { const a = document.createElement('a'); a.href = t.img; a.download = `cherry-${t.id}`; a.click(); flash(b, 'Скачано'); } } };
 }
