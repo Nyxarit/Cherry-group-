@@ -161,6 +161,62 @@ footer{border-top:1px solid var(--line);text-align:center;color:var(--muted);fon
   .btn{flex:1 1 calc(50% - 10px);justify-content:center;padding:12px 10px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}#petals{display:none}}
+/* ===== 🍒 CHERRY SCROLLBAR ===== */
+
+/* Ширина полосы */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Фон полосы */
+::-webkit-scrollbar-track {
+  background: rgba(20, 5, 11, 0.85);
+  border-left: 1px solid rgba(255, 163, 184, 0.08);
+}
+
+/* Сам бегунок */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    #ff8fa8 0%,
+    #e0203f 45%,
+    #8c1029 100%
+  );
+
+  border-radius: 20px;
+  border: 2px solid #14050b;
+
+  box-shadow:
+    0 0 8px rgba(224, 32, 63, 0.55),
+    0 0 18px rgba(255, 163, 184, 0.25);
+
+  transition: all 0.3s ease;
+}
+
+/* Когда наводишь мышку */
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    #ffa3b8 0%,
+    #ff4d6d 45%,
+    #e0203f 100%
+  );
+
+  box-shadow:
+    0 0 10px rgba(255, 77, 109, 0.8),
+    0 0 25px rgba(255, 163, 184, 0.45);
+}
+
+/* Закругляем верх/низ */
+::-webkit-scrollbar-corner {
+  background: #14050b;
+}
+
+/* Для Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #e0203f #14050b;
+}
 </style>
 </head>
 <body>
